@@ -17,11 +17,11 @@ function getAuthContext({ req, res }) {
 
   const chain = getChain(chainId);
 
-  const user = getUser(authSignature);
-
   if (!chain) {
     throw new AuthenticationError("Invalid Chain id");
   }
+
+  const user = getUser(authSignature, chain.url);
 
   if (!user) {
     throw new AuthenticationError("Invalid Account");

@@ -1,7 +1,16 @@
-function getChain(chainId) {
-  // TODO
+const chainMap = {
+  4: {
+    name: "rinkeby",
+    url: process.env.RINKEY_URL,
+  },
+  42: {
+    name: "kovan",
+    url: process.env.KOVAN_URL,
+  },
+};
 
-  return {};
+function getChain(chainId) {
+  return chainMap[chainId];
 }
 
 module.exports = { getChain };

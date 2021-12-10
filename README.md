@@ -16,17 +16,28 @@ npm i
 
 ## Development
 
-Install [Metamask](https://metamask.io/) if you haven't
+Install [Metamask](https://metamask.io/), if you haven't already
 
 Request KETH using [ethdrop](https://ethdrop.dev/)
+
+Install [OpenEthereum](https://github.com/openethereum/openethereum)
+
+Connect to Kovan
+
+```sh
+openethereum --chain kovan
+```
 
 ## Tasks
 
 - [x] Setup Node server
 - [ ] Deploying smart contract contract to test newtork
+  - [x] Kovan
+  - [ ] Rinkby (Waiting on faucet) (https://twitter.com/John_Webb_1/status/1469238463601938433)
 - [ ] Apollo GraphQL server for user endpoints
   - [x] Define schema
-  - [ ] Hooking into web3
+  - [x] Hooking into web3
+  - [x] Creating static website to fetch signed auth signature
 - [ ] Background worker for calling contract and indexing events
 - [ ] Mongo database for indexing events
 - [ ] User validation on endpoints
