@@ -1,7 +1,7 @@
 const chainMap = {
   4: {
     name: "rinkeby",
-    url: process.env.RINKEY_URL,
+    url: process.env.RINKEBY_URL,
   },
   42: {
     name: "kovan",
