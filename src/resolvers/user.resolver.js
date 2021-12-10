@@ -1,5 +1,7 @@
 const { gql } = require("apollo-server-express");
 
+const { getId } = require("../services/user.service");
+
 const User = gql`
   extend type Query {
     user(address: String!): User
@@ -29,6 +31,7 @@ const User = gql`
 
 const userResolvers = {
   Query: {
+    me: meResolver,
     user: userResolver,
   },
   Mutation: {
@@ -37,38 +40,62 @@ const userResolvers = {
   },
 };
 
-function userResolver(parents, args, context) {
-  const { id } = args;
+function meResolver(parents, args, context) {
+  const { chain, user } = context;
 
-  console.log("context", context);
+  const id = getId(chain.id, user.address);
 
   // TODO
 
   return {
-    address: "addressUser",
-    chainId: 123,
+    address: user.address,
+    chainId: chain.id,
+    id: id,
+  };
+}
+
+function userResolver(parents, args, context) {
+  const { address } = args;
+  const { chain, user } = context;
+
+  const id = getId(chain.id, user.address);
+
+  // TODO
+
+  return {
+    address: user.address,
+    chainId: chain.id,
+    id,
   };
 }
 
 function signUpMutation(parents, args, context) {
   const { input } = args;
+  const { chain, user } = context;
+
+  const id = getId(chain.id, user.address);
 
   // TODO
 
   return {
-    address: "addresssSignUp",
-    chainId: 123,
+    address: user.address,
+    chainId: chain.id,
+    id,
   };
 }
 
 function updateMeMutation(parents, args, context) {
   const { input } = args;
+  const { chain, user } = context;
+
+  const id = getId(chain.id, user.address);
 
   // TODO
 
   return {
-    address: "addressUpdate",
-    chainId: 123,
+    address: user.address,
+    chainId: chain.id,
+    id,
   };
 }
 

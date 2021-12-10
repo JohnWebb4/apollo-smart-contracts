@@ -10,4 +10,8 @@ function getUser(signature, url) {
   return undefined;
 }
 
-module.exports = { getUser };
+function getId(chainId, address) {
+  return `${chainId}:${address}`;
+}
+
+module.exports = { getId, getUser };

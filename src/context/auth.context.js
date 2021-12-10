@@ -2,6 +2,7 @@ const { AuthenticationError } = require("apollo-server-errors");
 
 const { getChain } = require("../services/chain.service");
 const { getUser } = require("../services/user.service");
+const { initWeb3Client } = require("../utils/web3.util");
 
 function getAuthContext({ req, res }) {
   const chainId = req.headers["chain-id"];
@@ -20,6 +21,8 @@ function getAuthContext({ req, res }) {
   if (!chain) {
     throw new AuthenticationError("Invalid Chain id");
   }
+
+  initWeb3Client({ url: chain.url });
 
   const user = getUser(authSignature, chain.url);
 
