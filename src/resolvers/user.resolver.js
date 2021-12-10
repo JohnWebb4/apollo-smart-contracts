@@ -37,8 +37,10 @@ const userResolvers = {
   },
 };
 
-function userResolver(parents, args) {
+function userResolver(parents, args, context) {
   const { id } = args;
+
+  console.log("context", context);
 
   // TODO
 
@@ -48,7 +50,7 @@ function userResolver(parents, args) {
   };
 }
 
-function signUpMutation(parents, args) {
+function signUpMutation(parents, args, context) {
   const { input } = args;
 
   // TODO
@@ -59,7 +61,7 @@ function signUpMutation(parents, args) {
   };
 }
 
-function updateMeMutation(parents, args) {
+function updateMeMutation(parents, args, context) {
   const { input } = args;
 
   // TODO

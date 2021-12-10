@@ -1,6 +1,11 @@
 const { gql } = require("apollo-server");
 
-const { User, userResolvers, userMutations } = require("./resolvers/user");
+const { getAuthContext } = require("./context/auth.context");
+const {
+  User,
+  userResolvers,
+  userMutations,
+} = require("./resolvers/user.resolver");
 
 const BaseSchema = gql`
   type Query {
@@ -18,4 +23,12 @@ const resolvers = {
   ...userResolvers,
 };
 
-module.exports = { resolvers, typeDefs };
+function context({ req, res }) {
+  const authContext = getAuthContext({ req, res });
+
+  return {
+    ...authContext,
+  };
+}
+
+module.exports = { context, resolvers, typeDefs };
