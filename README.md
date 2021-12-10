@@ -22,6 +22,8 @@ Request KETH using [ethdrop](https://ethdrop.dev/)
 
 Request Rinkeby ETH using [chain-link](https://faucets.chain.link/rinkeby)
 
+Setup [Infura](https://infura.io/) project and popualte .env with endpoints
+
 ## Roadmap
 
 - [x] Setup Node server
@@ -30,7 +32,7 @@ Request Rinkeby ETH using [chain-link](https://faucets.chain.link/rinkeby)
   - [x] Rinkby (https://twitter.com/John_Webb_1/status/1469238463601938433)
 - [ ] Apollo GraphQL server for user endpoints
   - [x] Define schema
-  - [x] Hooking into web3
+  - [x] Hooking into ethers
   - [x] Get address from auth signature
 - [x] Boilerplate website to fetch auth signature
 - [ ] Background worker for calling contract and indexing events

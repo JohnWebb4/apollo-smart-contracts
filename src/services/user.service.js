@@ -1,4 +1,4 @@
-const { recoverSignatureAddress } = require("../utils/web3.util");
+const { recoverSignatureAddress } = require("../utils/ethers.util");
 
 function getSignatureUser(signature, url) {
   const address = recoverSignatureAddress({ signature, url });

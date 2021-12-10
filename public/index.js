@@ -2,19 +2,15 @@ const message = "I'd like to sign in";
 
 async function main() {
   if (window.ethereum) {
-    const web3 = new Web3(window.ethereum);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
 
     try {
       // ask user permission to access his accounts
       await window.ethereum.request({ method: "eth_requestAccounts" });
 
-      const accounts = await web3.eth.getAccounts();
+      const signer = provider.getSigner();
 
-      const hashMessage = web3.eth.accounts.hashMessage(message);
-      const eipString = getEIPString(hashMessage);
-      const hashEIP = web3.eth.accounts.hashMessage(eipString);
-
-      const hashSignature = await web3.eth.sign(hashEIP, accounts[0]);
+      const hashSignature = await signer.signMessage(message);
 
       const signatureRef = document.createElement("p");
       signatureRef.textContent = hashSignature;
@@ -26,10 +22,6 @@ async function main() {
   } else {
     throw "Must install MetaMask";
   }
-}
-
-function getEIPString(message) {
-  return "\x19Ethereum Signed Message:\n" + message.length + message;
 }
 
 window.addEventListener("load", main);
