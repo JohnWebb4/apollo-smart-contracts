@@ -1,6 +1,12 @@
 const { gql } = require("apollo-server-express");
 
-const { getId } = require("../services/user.service");
+const {
+  getId,
+  getUser,
+  signupUser,
+  updateUser,
+} = require("../services/user.service");
+const { RequestError } = require("../errors/request.error");
 
 const User = gql`
   extend type Query {
@@ -40,63 +46,75 @@ const userResolvers = {
   },
 };
 
-function meResolver(parents, args, context) {
+async function meResolver(_parents, _args, context) {
   const { chain, user } = context;
 
-  const id = getId(chain.id, user.address);
+  try {
+    const me = await getUser(chain.id, user.address);
 
-  // TODO
-
-  return {
-    address: user.address,
-    chainId: chain.id,
-    id: id,
-  };
+    return me;
+  } catch (error) {
+    throw new RequestError(error.message, error.statusCode || 500);
+  }
 }
 
-function userResolver(parents, args, context) {
+async function userResolver(_parents, args, context) {
   const { address } = args;
-  const { chain, user } = context;
+  const { chain } = context;
 
-  const id = getId(chain.id, user.address);
+  try {
+    const user = await getUser(chain.id, address);
 
-  // TODO
-
-  return {
-    address: user.address,
-    chainId: chain.id,
-    id,
-  };
+    return user;
+  } catch (error) {
+    throw new RequestError(error.message, error.statusCode || 500);
+  }
 }
 
-function signUpMutation(parents, args, context) {
+async function signUpMutation(_parents, args, context) {
   const { input } = args;
   const { chain, user } = context;
 
-  const id = getId(chain.id, user.address);
+  try {
+    const id = getId(chain.id, user.address);
 
-  // TODO
+    const userInput = {};
 
-  return {
-    address: user.address,
-    chainId: chain.id,
-    id,
-  };
+    // Possibly do more sanitization here on input
+    userInput.id = id;
+    userInput.username = input.username;
+    userInput.name = input.name;
+    userInput.twitter = input.twitter;
+
+    const signUpUser = await signupUser(userInput);
+
+    return signUpUser;
+  } catch (error) {
+    throw new RequestError(error.message, error.statusCode || 500);
+  }
 }
 
-function updateMeMutation(parents, args, context) {
+async function updateMeMutation(_parents, args, context) {
   const { input } = args;
   const { chain, user } = context;
 
-  const id = getId(chain.id, user.address);
+  try {
+    const id = getId(chain.id, user.address);
 
-  // TODO
+    const userInput = {};
 
-  return {
-    address: user.address,
-    chainId: chain.id,
-    id,
-  };
+    // Possibly do more sanitization here on input
+    userInput.id = id;
+    userInput.username = input.username;
+    userInput.name = input.name;
+    userInput.twitter = input.twitter;
+
+    const updatedUser = await updateUser(userInput);
+
+    return updatedUser;
+  } catch (error) {
+    throw new RequestError(error.message, error.statusCode || 500);
+  }
 }
 
 const userMutations = {};

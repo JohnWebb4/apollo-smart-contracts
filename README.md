@@ -22,10 +22,10 @@ Request KETH using [ethdrop](https://ethdrop.dev/)
 
 Request Rinkeby ETH using [chain-link](https://faucets.chain.link/rinkeby)
 
-## Tasks
+## Roadmap
 
 - [x] Setup Node server
-- [ ] Deploying smart contract contract to test newtork
+- [x] Deploying smart contract contract to test newtork
   - [x] Kovan
   - [x] Rinkby (https://twitter.com/John_Webb_1/status/1469238463601938433)
 - [ ] Apollo GraphQL server for user endpoints

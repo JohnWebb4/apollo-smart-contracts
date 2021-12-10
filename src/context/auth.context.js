@@ -1,7 +1,7 @@
 const { AuthenticationError } = require("apollo-server-errors");
 
 const { getChain } = require("../services/chain.service");
-const { getUser } = require("../services/user.service");
+const { getSignatureUser } = require("../services/user.service");
 const { initWeb3Client } = require("../utils/web3.util");
 
 function getAuthContext({ req, res }) {
@@ -24,7 +24,7 @@ function getAuthContext({ req, res }) {
 
   initWeb3Client({ url: chain.url });
 
-  const user = getUser(authSignature, chain.url);
+  const user = getSignatureUser(authSignature, chain.url);
 
   if (!user) {
     throw new AuthenticationError("Invalid Account");
