@@ -1,7 +1,7 @@
 const { AuthenticationError } = require("apollo-server-errors");
 
 const { getChain } = require("../services/chain.service");
-const { getSignatureUser } = require("../services/user.service");
+const { recoverSignatureAddress } = require("../utils/ethers.util");
 const { initClient } = require("../utils/ethers.util");
 const { initDB } = require("../utils/mongo.util");
 
@@ -23,9 +23,9 @@ async function getAuthContext({ req, res }) {
     throw new AuthenticationError("Invalid Chain id");
   }
 
-  const user = getSignatureUser(authSignature, chain.url);
+  const address = recoverSignatureAddress(authSignature, chain.url);
 
-  if (!user) {
+  if (!address) {
     throw new AuthenticationError("Invalid Account");
   }
 
@@ -33,7 +33,7 @@ async function getAuthContext({ req, res }) {
 
   await initDB();
 
-  return { chain, user };
+  return { chain, user: { address } };
 }
 
 module.exports = { getAuthContext };

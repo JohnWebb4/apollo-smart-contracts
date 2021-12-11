@@ -46,6 +46,13 @@ const userResolvers = {
   },
 };
 
+/**
+ * Fetch the current user
+ * @param {undefined} _parents none
+ * @param {undefined} _args none
+ * @param {Context} context auth context
+ * @returns {User} current user
+ */
 async function meResolver(_parents, _args, context) {
   const { chain, user } = context;
 
@@ -58,6 +65,13 @@ async function meResolver(_parents, _args, context) {
   }
 }
 
+/**
+ * Fetch details on the selected user
+ * @param {undefined} _parents none
+ * @param {{ address: string }} args the user's address
+ * @param {Context} context auth context
+ * @returns {User} user
+ */
 async function userResolver(_parents, args, context) {
   const { address } = args;
   const { chain } = context;
@@ -71,6 +85,13 @@ async function userResolver(_parents, args, context) {
   }
 }
 
+/**
+ * Signup a new user
+ * @param {undefined} _parents none
+ * @param {{ input: UserInput }} args new user information
+ * @param {Context} context auth context
+ * @returns {User} Signed up user
+ */
 async function signUpMutation(_parents, args, context) {
   const { input } = args;
   const { chain, user } = context;
@@ -94,6 +115,13 @@ async function signUpMutation(_parents, args, context) {
   }
 }
 
+/**
+ * Update current user
+ * @param {undefined} _parents none
+ * @param {{ input: UserInput }} args updated information
+ * @param {Context} context auth context
+ * @returns {User} updated user
+ */
 async function updateMeMutation(_parents, args, context) {
   const { input } = args;
   const { chain, user } = context;

@@ -8,8 +8,12 @@ const projectSecret = process.env.INFURA_SECRET;
 let provider;
 let signer;
 
-async function initClient({ name }) {
-  provider = new ethers.providers.InfuraProvider(name, {
+/**
+ * Initialize the etherium client
+ * @param {{ name: string }} config initialization options for provider
+ */
+async function initClient(config) {
+  provider = new ethers.providers.InfuraProvider(config.name, {
     projectId,
     projectSecret,
   });
@@ -23,10 +27,22 @@ function guardProvider(fnName) {
   }
 }
 
-function recoverSignatureAddress({ signature }) {
+/**
+ * Get the signer's address
+ * @param {string} signature EIP-191 signature
+ * @returns {string} address of signer
+ */
+function recoverSignatureAddress(signature) {
   return ethers.utils.verifyMessage(message, signature);
 }
 
+/**
+ * Get a contract
+ * @param {string} cAddress contract's address
+ * @param {JSON} cAbi contract abi
+ * @param {{ signed }} options contract fetch options
+ * @returns {Contract} contract
+ */
 function getContract(cAddress, cAbi, options = {}) {
   guardProvider("getContract");
 
@@ -39,7 +55,23 @@ function getContract(cAddress, cAbi, options = {}) {
   return new ethers.Contract(cAddress, cAbi, providerOrSigner);
 }
 
+/**
+ * Deploy a new contract.
+ * @param {JSON} cAbi contract ABI
+ * @param {JSON} cBin contract bytecode
+ * @param {JSON} args contract constructor arguments
+ * @returns {Promise<Contract>} Promise for deployed contract
+ */
+function createContract(cAbi, cBin, args = []) {
+  guardProvider("getContract");
+
+  const factory = ethers.ContractFactory(cAbi, cBin, signer);
+
+  return factory.deploy(...args);
+}
+
 module.exports = {
+  createContract,
   getContract,
   initClient,
   recoverSignatureAddress,

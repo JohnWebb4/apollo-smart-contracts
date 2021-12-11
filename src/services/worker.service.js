@@ -10,6 +10,10 @@ const contractEventQueue = new Queue("contract-events", {
   redis: { host, password, port },
 });
 
+/**
+ * Adds a contract event job
+ * @param {*} event
+ */
 async function addContractEvent(event) {
   await contractEventQueue.add(event);
 }
@@ -17,7 +21,7 @@ async function addContractEvent(event) {
 contractEventQueue.process(processContractEvent);
 
 process.on("SIGINT", function () {
-  // Cleanup workers
+  // Cleanup workers on exit
   console.log("Starting queue shutdown");
   contractEventQueue.close().then(function () {
     console.log("Finished queue shutdown");

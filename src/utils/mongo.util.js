@@ -9,6 +9,9 @@ const client = new MongoClient(url, {
 });
 let db;
 
+/**
+ * Initialize the database
+ */
 async function initDB() {
   try {
     await client.connect();
@@ -17,6 +20,12 @@ async function initDB() {
     console.error(err);
   }
 }
+
+/**
+ * Write a document to the collection
+ * @param {*} collectionName name of the collection
+ * @param {*} document document to write
+ */
 async function writeDocument(collectionName, document) {
   await db.collection(collectionName).insertOne(document);
 }

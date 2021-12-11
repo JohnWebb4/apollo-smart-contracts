@@ -9,6 +9,11 @@ const chainMap = {
   },
 };
 
+/**
+ * Get chain config from id
+ * @param {*} chainId id of chain
+ * @returns {{ id: number, name: string }} chain config
+ */
 function getChain(chainId) {
   return chainMap[chainId];
 }
