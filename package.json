@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node index.js",
-    "start:dev": "nodemon index.js"
+    "start:dev": "nodemon index.js",
+    "start:web:dev": "http-server docs"
   },
   "repository": {
     "type": "git",
@@ -23,16 +24,14 @@
   },
   "homepage": "https://github.com/JohnWebb4/apollo-smart-contracts#readme",
   "dependencies": {
-    "apollo-server-core": "^3.5.0",
-    "apollo-server-express": "^3.5.0",
-    "cors": "^2.8.5",
+    "apollo-server": "^3.5.0",
     "ethers": "^5.5.2",
-    "express": "^4.17.1",
     "graphql": "^15.8.0",
     "mongodb": "^4.2.1"
   },
   "devDependencies": {
     "dotenv": "^10.0.0",
+    "http-server": "^14.0.0",
     "nodemon": "^2.0.15"
   }
 }

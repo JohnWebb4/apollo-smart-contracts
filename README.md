@@ -20,7 +20,7 @@ Install [Metamask](https://metamask.io/), if you haven't already
 
 Setup a wallet and account for service. Add private key to .env
 
-Request KETH using [ethdrop](https://ethdrop.dev/)
+Request Kovan using [chain-link](https://faucets.chain.link/kovan)
 
 Request Rinkeby ETH using [chain-link](https://faucets.chain.link/rinkeby)
 
