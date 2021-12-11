@@ -23,8 +23,8 @@ const resolvers = {
   ...userResolvers,
 };
 
-function context({ req, res }) {
-  const authContext = getAuthContext({ req, res });
+async function context({ req, res }) {
+  const authContext = await getAuthContext({ req, res });
 
   return {
     ...authContext,

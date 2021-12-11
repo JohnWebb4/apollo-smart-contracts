@@ -4,7 +4,7 @@ const { getChain } = require("../services/chain.service");
 const { getSignatureUser } = require("../services/user.service");
 const { initClient } = require("../utils/ethers.util");
 
-function getAuthContext({ req, res }) {
+async function getAuthContext({ req, res }) {
   const chainId = req.headers["chain-id"];
   const authSignature = req.headers["auth-signature"];
 
@@ -22,13 +22,13 @@ function getAuthContext({ req, res }) {
     throw new AuthenticationError("Invalid Chain id");
   }
 
-  initClient({ url: chain.url });
-
   const user = getSignatureUser(authSignature, chain.url);
 
   if (!user) {
     throw new AuthenticationError("Invalid Account");
   }
+
+  await initClient({ name: chain.name });
 
   return { chain, user };
 }

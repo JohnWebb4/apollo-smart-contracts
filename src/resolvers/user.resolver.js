@@ -81,7 +81,7 @@ async function signUpMutation(_parents, args, context) {
     const userInput = {};
 
     // Possibly do more sanitization here on input
-    userInput.id = id;
+    userInput.address = user.address;
     userInput.username = input.username;
     userInput.name = input.name;
     userInput.twitter = input.twitter;
@@ -104,7 +104,7 @@ async function updateMeMutation(_parents, args, context) {
     const userInput = {};
 
     // Possibly do more sanitization here on input
-    userInput.id = id;
+    userInput.address = address;
     userInput.username = input.username;
     userInput.name = input.name;
     userInput.twitter = input.twitter;

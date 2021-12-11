@@ -31,9 +31,10 @@ Setup [Infura](https://infura.io/) project and popualte .env with endpoints
   - [x] Kovan
   - [x] Rinkby (https://twitter.com/John_Webb_1/status/1469238463601938433)
 - [ ] Apollo GraphQL server for user endpoints
-  - [x] Define schema
+  - [x] Define GraphQL schema
   - [x] Hooking into ethers
   - [x] Get address from auth signature
+  - [ ] Implement signup
 - [x] Boilerplate website to fetch auth signature
 - [ ] Background worker for calling contract and indexing events
 - [ ] Mongo database for indexing events

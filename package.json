@@ -4,7 +4,8 @@
   "description": "Implementing smart contracts through Apollo",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "start:dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -13,7 +14,6 @@
   "keywords": [
     "Apollo",
     "Ethereum",
-    "Smart",
     "Contracts"
   ],
   "author": "JohnWebb4",
@@ -31,6 +31,7 @@
     "graphql": "^15.8.0"
   },
   "devDependencies": {
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "nodemon": "^2.0.15"
   }
 }

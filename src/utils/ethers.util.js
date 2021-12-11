@@ -1,12 +1,20 @@
 const ethers = require("ethers");
 
 const message = process.env.AUTH_NONCE;
+const privateKey = process.env.PRIVATE_KEY;
+const projectId = process.env.INFURA_PROJECT;
+const projectSecret = process.env.INFURA_SECRET;
+
 let provider;
 let signer;
 
-function initClient({ url }) {
-  provider = new ethers.providers.JsonRpcProvider({ url });
-  signer = provider.getSigner();
+async function initClient({ name }) {
+  provider = new ethers.providers.InfuraProvider(name, {
+    projectId,
+    projectSecret,
+  });
+
+  signer = new ethers.Wallet(privateKey, provider);
 }
 
 function guardProvider(fnName) {
@@ -16,11 +24,23 @@ function guardProvider(fnName) {
 }
 
 function recoverSignatureAddress({ signature }) {
-  guardProvider("recoverSignatureAddress");
-
-  const address = ethers.utils.verifyMessage(message, signature);
-
-  return address;
+  return ethers.utils.verifyMessage(message, signature);
 }
 
-module.exports = { initClient, recoverSignatureAddress };
+function getContract(cAddress, cAbi, options = {}) {
+  guardProvider("getContract");
+
+  let providerOrSigner = provider;
+
+  if (options.signed) {
+    providerOrSigner = signer;
+  }
+
+  return new ethers.Contract(cAddress, cAbi, providerOrSigner);
+}
+
+module.exports = {
+  getContract,
+  initClient,
+  recoverSignatureAddress,
+};
