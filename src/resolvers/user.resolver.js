@@ -5,6 +5,7 @@ const {
   getUser,
   signupUser,
   updateUser,
+  validateUserInput,
 } = require("../services/user.service");
 const { RequestError } = require("../errors/request.error");
 
@@ -99,9 +100,10 @@ async function signUpMutation(_parents, args, context) {
   try {
     const id = getId(chain.id, user.address);
 
+    validateUserInput(input);
+
     const userInput = {};
 
-    // Possibly do more sanitization here on input
     userInput.address = user.address;
     userInput.username = input.username;
     userInput.name = input.name;
@@ -129,10 +131,11 @@ async function updateMeMutation(_parents, args, context) {
   try {
     const id = getId(chain.id, user.address);
 
+    validateUserInput(input);
+
     const userInput = {};
 
-    // Possibly do more sanitization here on input
-    userInput.address = address;
+    userInput.address = user.address;
     userInput.username = input.username;
     userInput.name = input.name;
     userInput.twitter = input.twitter;

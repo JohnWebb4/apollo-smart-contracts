@@ -1,8 +1,17 @@
 const ethers = require("ethers");
 
 const IdentityManagerContractABI = require("../../contracts/artifacts/IdentityManager.abi.json");
+const { RequestError } = require("../errors/request.error");
 const { getContract } = require("../utils/ethers.util");
+const {
+  isAlphaNumeric,
+  isXCharactersOrLess,
+} = require("../utils/validator.util");
 const { addContractEvent } = require("./worker.service");
+
+const nameLength = 50; // Arbitrary
+const twitterHandleLength = 15; // Source: https://help.twitter.com/en/managing-your-account/twitter-username-rules#:~:text=Your%20username%20cannot%20be%20longer,for%20the%20sake%20of%20ease
+const usernameLength = 15; // Arbitrary
 
 /**
  * Get user
@@ -76,9 +85,41 @@ function getId(chainId, address) {
   return `${chainId}:${address}`;
 }
 
+/**
+ * Validate user input
+ * @param {UserInput} input user input
+ * @throws {RequestError} throws if input is malformed
+ */
+function validateUserInput({ name, twitter, username }) {
+  if (name) {
+    if (!isXCharactersOrLess(name, nameLength)) {
+      throw new RequestError("Name is invalid", 400);
+    }
+  }
+
+  if (twitter) {
+    if (
+      !isAlphaNumeric(twitter) ||
+      !isXCharactersOrLess(twitter, twitterHandleLength)
+    ) {
+      throw new RequestError("Twitter handle is invalid", 400);
+    }
+  }
+
+  if (username) {
+    if (
+      !isAlphaNumeric(username) ||
+      !isXCharactersOrLess(username, usernameLength)
+    ) {
+      throw new RequestError("Username is invalid", 400);
+    }
+  }
+}
+
 module.exports = {
   getId,
   getUser,
   signupUser,
   updateUser,
+  validateUserInput,
 };
