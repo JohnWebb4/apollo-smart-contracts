@@ -5,6 +5,7 @@ const {
   recoverSignatureAddress,
   getContract,
 } = require("../utils/ethers.util");
+const { addContractEvent } = require("./worker.service");
 
 function getSignatureUser(signature, url) {
   const address = recoverSignatureAddress({ signature, url });

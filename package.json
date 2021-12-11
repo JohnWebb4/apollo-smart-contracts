@@ -25,6 +25,7 @@
   "homepage": "https://github.com/JohnWebb4/apollo-smart-contracts#readme",
   "dependencies": {
     "apollo-server": "^3.5.0",
+    "bull": "^4.1.1",
     "ethers": "^5.5.2",
     "graphql": "^15.8.0",
     "mongodb": "^4.2.1"

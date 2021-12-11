@@ -39,6 +39,7 @@ Setup [MongoDb Cluster](https://www.mongodb.com/) and add url to .env and add x5
   - [x] Hooking into ethers
   - [x] Get address from auth signature
   - [ ] Implement signup
+  - [x] Add bull for worker queue
 - [x] Boilerplate website to fetch auth signature
 - [ ] Background worker for calling contract and indexing events
 - [x] Mongo database for indexing events
