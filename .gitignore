@@ -105,3 +105,7 @@ dist
 
 # Mac
 .DS_STORE
+
+# Monggo
+
+db-certificate.pem

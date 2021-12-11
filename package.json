@@ -28,7 +28,8 @@
     "cors": "^2.8.5",
     "ethers": "^5.5.2",
     "express": "^4.17.1",
-    "graphql": "^15.8.0"
+    "graphql": "^15.8.0",
+    "mongodb": "^4.2.1"
   },
   "devDependencies": {
     "dotenv": "^10.0.0",

@@ -18,11 +18,15 @@ npm i
 
 Install [Metamask](https://metamask.io/), if you haven't already
 
+Setup a wallet and account for service. Add private key to .env
+
 Request KETH using [ethdrop](https://ethdrop.dev/)
 
 Request Rinkeby ETH using [chain-link](https://faucets.chain.link/rinkeby)
 
 Setup [Infura](https://infura.io/) project and popualte .env with endpoints
+
+Setup [MongoDb Cluster](https://www.mongodb.com/) and add url to .env and add x509 cert to project
 
 ## Roadmap
 
@@ -37,8 +41,8 @@ Setup [Infura](https://infura.io/) project and popualte .env with endpoints
   - [ ] Implement signup
 - [x] Boilerplate website to fetch auth signature
 - [ ] Background worker for calling contract and indexing events
-- [ ] Mongo database for indexing events
-- [ ] User validation on endpoints
+- [x] Mongo database for indexing events
+- [x] User validation on endpoints
 
 ## Contracts
 
