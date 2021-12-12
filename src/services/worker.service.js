@@ -1,32 +1,35 @@
 const Queue = require("bull");
 
-const { processContractEvent } = require("../workers/contractevent.worker");
+const {
+  processIndexContractEvent,
+} = require("../workers/indexContractEvent.worker");
 
 const host = process.env.REDIS_HOST;
 const password = process.env.REDIS_PASSWORD;
 const port = "19196"; // Could move to env file. Not gonna worry about now.
 
-const contractEventQueue = new Queue("contract-events", {
+const indexContractEventQueue = new Queue("contract-events", {
   redis: { host, password, port },
 });
 
 /**
- * Adds a contract event job
+ * Adds an event to index the current contract
  * @param {*} event
  */
-async function addContractEvent(event) {
-  await contractEventQueue.add(event);
+async function addIndexContractEvent(event) {
+  await indexContractEventQueue.add(event);
 }
 
-contractEventQueue.process(processContractEvent);
+indexContractEventQueue.process(processIndexContractEvent);
 
-process.on("SIGINT", function () {
+process.on("SIGINT", async function () {
   // Cleanup workers on exit
-  console.log("Starting queue shutdown");
-  contractEventQueue.close().then(function () {
-    console.log("Finished queue shutdown");
-    process.exit(0);
-  });
+  console.info("Starting queue shutdown");
+
+  await indexContractEventQueue.close();
+  console.info("Finished index contract queue shutdown");
+
+  process.exit(0);
 });
 
-module.exports = { addContractEvent };
+module.exports = { addIndexContractEvent };

@@ -58,7 +58,7 @@ async function meResolver(_parents, _args, context) {
   const { chain, user } = context;
 
   try {
-    const me = await getUser(chain.id, user.address);
+    const me = await getUser(chain, user.address);
 
     return me;
   } catch (error) {
@@ -78,7 +78,7 @@ async function userResolver(_parents, args, context) {
   const { chain } = context;
 
   try {
-    const user = await getUser(chain.id, address);
+    const user = await getUser(chain, address);
 
     return user;
   } catch (error) {
@@ -109,7 +109,7 @@ async function signUpMutation(_parents, args, context) {
     userInput.name = input.name;
     userInput.twitter = input.twitter;
 
-    const signUpUser = await signupUser(userInput);
+    const signUpUser = await signupUser(chain, userInput);
 
     return signUpUser;
   } catch (error) {
@@ -140,7 +140,7 @@ async function updateMeMutation(_parents, args, context) {
     userInput.name = input.name;
     userInput.twitter = input.twitter;
 
-    const updatedUser = await updateUser(userInput);
+    const updatedUser = await updateUser(chain, userInput);
 
     return updatedUser;
   } catch (error) {

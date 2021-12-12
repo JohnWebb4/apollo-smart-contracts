@@ -18,6 +18,8 @@ npm i
 
 Install [Metamask](https://metamask.io/), if you haven't already
 
+Copy see [sample.env](/sample.env) into .env file.
+
 Setup a wallet and account for service. Add private key to .env
 
 Request Kovan using [chain-link](https://faucets.chain.link/kovan)
@@ -26,7 +28,9 @@ Request Rinkeby ETH using [chain-link](https://faucets.chain.link/rinkeby)
 
 Setup [Infura](https://infura.io/) project and popualte .env with endpoints
 
-Setup [MongoDb Cluster](https://www.mongodb.com/) and add url to .env and add x509 cert to project
+Setup [MongoDb Cluster](https://www.mongodb.com/) and add url to .env and add x509 cert to project as ./db-certificate.pem file
+
+Setup [Redis Cluster](https://redis.com/) and add host, password, and port to .env
 
 ## Roadmap
 
@@ -39,9 +43,11 @@ Setup [MongoDb Cluster](https://www.mongodb.com/) and add url to .env and add x5
   - [x] Hooking into ethers
   - [x] Get address from auth signature
   - [ ] Implement signup
+  - [ ] Implement updates
+  - [ ] Implement searching user
   - [x] Add bull for worker queue
 - [x] Boilerplate website to fetch auth signature
-- [ ] Background worker for calling contract and indexing events
+- [x] Background worker and indexing events
 - [x] Mongo database for indexing events
 - [x] User validation on endpoints
 
@@ -49,8 +55,28 @@ Setup [MongoDb Cluster](https://www.mongodb.com/) and add url to .env and add x5
 
 Used [Remix](https://remix.ethereum.org) to generate the artifacts
 
-Copy results into repo for preserving with code
+Copy results into repo for preserving with [code](/contracts/artifacts)
 
-IdentityManager Contract address: 0xd9145CCE52D386f254917e481eB44e9943F39138
+## MongoDB
+
+### Contract Event
+
+```
+{
+  id: string # chainid:address
+  blockNumber: long # number on block
+  eventName: string # name of event
+  addr: string # chain user address
+  username: string
+  name: string? # name of user
+  twitter: string? # twitter handle
+}
+```
+
+## Redis
+
+### latestBlock: number # the most recent block that has been referenced
+
+### contract-events: { chain: { id: int, name: string, identityAddress: string } } # message queue of events to trigger index
 
 ## Future

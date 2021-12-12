@@ -29,7 +29,7 @@ async function getAuthContext({ req, res }) {
     throw new AuthenticationError("Invalid Account");
   }
 
-  await initClient({ name: chain.name });
+  initClient(chain.name);
 
   await initDB();
 

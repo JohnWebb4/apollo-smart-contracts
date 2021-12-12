@@ -22,12 +22,23 @@ async function initDB() {
 }
 
 /**
+ * Query collection
+ * @param {*} collectionName name of collection
+ * @param {{}} query object with params to query
+ * @returns {Cursor} mongo cursor for iteration
+ */
+function queryCollection(collectionName, query) {
+  return db.collection(collectionName).find(query);
+}
+
+/**
  * Write a document to the collection
  * @param {*} collectionName name of the collection
  * @param {*} document document to write
+ * @returns {Promise<InsertOneModel>} returns promise of inserted document
  */
-async function writeDocument(collectionName, document) {
-  await db.collection(collectionName).insertOne(document);
+function writeDocument(collectionName, document) {
+  return db.collection(collectionName).insertOne(document);
 }
 
-module.exports = { initDB, writeDocument };
+module.exports = { initDB, queryCollection, writeDocument };

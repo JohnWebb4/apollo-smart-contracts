@@ -11,5 +11,7 @@ const server = new ApolloServer({
 });
 
 server.listen().then(({ url }) => {
-  console.log(`listening on port ${url}`);
+  if (process.env.NODE_ENV == "development") {
+    console.info(`Listening on port ${url}`);
+  }
 });
