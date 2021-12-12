@@ -25,7 +25,7 @@ async function initDB() {
  * Query collection
  * @param {*} collectionName name of collection
  * @param {{}} query object with params to query
- * @returns {Cursor} mongo cursor for iteration
+ * @returns {Promise<Cursor>} mongo cursor for iteration
  */
 function queryCollection(collectionName, query, sort = undefined) {
   let cursor = db.collection(collectionName).find(query);
@@ -47,4 +47,14 @@ function writeDocument(collectionName, document) {
   return db.collection(collectionName).insertOne(document);
 }
 
-module.exports = { initDB, queryCollection, writeDocument };
+/**
+ * Delete one document from collection by _id
+ * @param {string} collectionName name of collection
+ * @param {string} _id inner document id
+ * @returns
+ */
+function deleteOne(collectionName, _id) {
+  return db.collection(collectionName).deleteOne({ _id });
+}
+
+module.exports = { deleteOne, initDB, queryCollection, writeDocument };

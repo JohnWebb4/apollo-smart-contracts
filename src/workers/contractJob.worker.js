@@ -28,6 +28,8 @@ async function processContractJob(job, done) {
         break;
     }
 
+    console.info("Processed job", id, jobName);
+
     done();
   } catch (error) {
     console.warn("Error processing job", error);
@@ -35,7 +37,7 @@ async function processContractJob(job, done) {
 }
 
 async function processSignupJob({ id, username, name, twitter }) {
-  const chainId = id.split(":")[0];
+  const [chainId, address] = id.split(":");
   const chain = getChain(chainId);
 
   const identityManagerContract = getContract(
@@ -61,7 +63,7 @@ async function processSignupJob({ id, username, name, twitter }) {
 }
 
 async function processUpdateUserJob({ id, username, name, twitter }) {
-  const chainId = id.split(":")[0];
+  const [chainId, address] = id.split(":");
   const chain = getChain(chainId);
 
   const identityManagerContract = getContract(

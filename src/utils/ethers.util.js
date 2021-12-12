@@ -81,7 +81,21 @@ function getBlockNumber(chainName) {
   return provider.getBlockNumber();
 }
 
+/**
+ * Check if string value matches ether indexed hash
+ * @param {string} value
+ * @param {string} indexedHash
+ * @returns {boolean} if matches
+ */
+function doesValueEqualIndexedHash(value, indexedHash) {
+  let valueBytes = ethers.utils.toUtf8Bytes(value);
+  let hashValue = ethers.utils.keccak256(valueBytes);
+
+  return hashValue === indexedHash;
+}
+
 module.exports = {
+  doesValueEqualIndexedHash,
   getBlockNumber,
   getContract,
   initClient,

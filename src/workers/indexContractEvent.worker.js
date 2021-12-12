@@ -6,8 +6,16 @@ const {
 } = require("../constants/contractEvent.constant");
 const IdentityManagerContractABI = require("../../contracts/artifacts/IdentityManager.abi.json");
 const { getId } = require("../resources/user.resource");
-const { getContract, getBlockNumber } = require("../utils/ethers.util");
-const { writeDocument } = require("../utils/mongo.util");
+const {
+  getContract,
+  getBlockNumber,
+  doesValueEqualIndexedHash,
+} = require("../utils/ethers.util");
+const {
+  writeDocument,
+  queryCollection,
+  deleteOne,
+} = require("../utils/mongo.util");
 const { getKey, getCache, setCache } = require("../utils/redis.util");
 
 const lastBlockReadKey = "lastBlockRead";
@@ -129,10 +137,10 @@ async function processEvent(chain, event) {
 
     switch (eventName) {
       case CONTRACT_EVENTS.createIdentity:
-        user = getUserFromCreateEvent(chain, event);
+        user = await getUserFromCreateEvent(chain, event);
         break;
       case CONTRACT_EVENTS.updateIdentity:
-        user = getUserFromUpdateEvent(chain, event);
+        user = await getUserFromUpdateEvent(chain, event);
         break;
       case CONTRACT_EVENTS.deleteIdentity:
         user = getUserFromDeleteEvent(chain, event);
@@ -196,10 +204,33 @@ async function updateLastBlockReadCache(chain, blockNumber) {
   await setCache(key, Math.max(lastBlockRead, blockNumber));
 }
 
-function getUserFromCreateEvent(chain, event) {
+/**
+ * Get user from a create event
+ * @param {Chain} chain Current chain
+ * @param {Event} event Ether event
+ * @returns {User} parsed user
+ */
+async function getUserFromCreateEvent(chain, event) {
   let [addr, indexUsername, name, twitter] = event.args;
   const id = getId(chain.id, addr);
-  const username = indexUsername.hash;
+  let username = indexUsername.hash;
+
+  const cursor = await queryCollection(CONTRACT_EVENT_COLLECTION_NAME, {
+    id,
+    eventName: CONTRACT_EVENTS.pendingCreateIdentity,
+  });
+
+  while (await cursor.hasNext()) {
+    const contractEvent = await cursor.next();
+
+    if (doesValueEqualIndexedHash(contractEvent.username, event.topics[2])) {
+      username = contractEvent.username;
+
+      await deleteOne(CONTRACT_EVENT_COLLECTION_NAME, contractEvent._id);
+
+      console.info("Resolved pending create", id);
+    }
+  }
 
   return {
     id,
@@ -209,10 +240,33 @@ function getUserFromCreateEvent(chain, event) {
   };
 }
 
-function getUserFromUpdateEvent(chain, event) {
-  let [addr, indexUsername, name, twitter] = event.args;
+/**
+ * Get user from an update event
+ * @param {Chain} chain Current chain
+ * @param {Event} event Ether event
+ * @returns {User} parsed user
+ */
+async function getUserFromUpdateEvent(chain, event) {
+  const [addr, indexUsername, name, twitter] = event.args;
   const id = getId(chain.id, addr);
-  const username = indexUsername.hash;
+  let username = indexUsername.hash;
+
+  const cursor = await queryCollection(CONTRACT_EVENT_COLLECTION_NAME, {
+    id,
+    eventName: CONTRACT_EVENTS.pendingUpdateIdentity,
+  });
+
+  while (await cursor.hasNext()) {
+    const contractEvent = await cursor.next();
+
+    if (doesValueEqualIndexedHash(contractEvent.username, event.topics[2])) {
+      username = contractEvent.username;
+
+      await deleteOne(CONTRACT_EVENT_COLLECTION_NAME, contractEvent._id);
+
+      console.info("Resolved pending update", id);
+    }
+  }
 
   return {
     id,
@@ -222,6 +276,12 @@ function getUserFromUpdateEvent(chain, event) {
   };
 }
 
+/**
+ * Get user from a delete event
+ * @param {Chain} chain Current chain
+ * @param {Event} event Ether event
+ * @returns {User} parsed user
+ */
 function getUserFromDeleteEvent(chain, event) {
   let [addr, indexUsername] = event.args;
   const id = getId(chain.id, addr);
@@ -233,6 +293,12 @@ function getUserFromDeleteEvent(chain, event) {
   };
 }
 
+/**
+ * Get user from a owner transfer event
+ * @param {Chain} chain Current chain
+ * @param {Event} event Ether event
+ * @returns {User} parsed user
+ */
 function getUserFromOwnershipTransferredEvent(chain, event) {
   const [fromAddr, toAddr] = event.args;
   const id = getId(chain.id, fromAddr);
