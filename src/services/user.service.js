@@ -1,16 +1,19 @@
-const ethers = require("ethers");
-
-const IdentityManagerContractABI = require("../../contracts/artifacts/IdentityManager.abi.json");
+const {
+  CONTRACT_EVENT_COLLECTION_NAME,
+  CONTRACT_EVENTS,
+} = require("../constants/contractEvent.constant");
+const { CONTRACT_JOBS } = require("../constants/contractJob.constant");
 const { RequestError } = require("../errors/request.error");
 const { getUserFromEvents } = require("../resources/contractEvent.resource");
 const { getId } = require("../resources/user.resource");
-const { getContract } = require("../utils/ethers.util");
+const { getBlockNumber } = require("../utils/ethers.util");
+const { writeDocument } = require("../utils/mongo.util");
 const {
   isAlphaNumeric,
   isXCharactersOrLess,
 } = require("../utils/validator.util");
+const { addContractJob } = require("./worker.service");
 
-const gasLimit = ethers.utils.parseUnits("0.00000000003"); // Estimates
 const nameLength = 50; // Arbitrary
 const twitterHandleLength = 15; // Source: https://help.twitter.com/en/managing-your-account/twitter-username-rules#:~:text=Your%20username%20cannot%20be%20longer,for%20the%20sake%20of%20ease
 const usernameLength = 15; // Arbitrary
@@ -38,32 +41,24 @@ async function signupUser(chain, { address, username, name, twitter }) {
   const currentUser = await getUserFromEvents(id);
 
   if (!currentUser) {
-    const identityManagerContract = getContract(
-      chain.name,
-      ethers.utils.getAddress(chain.identityAddress),
-      IdentityManagerContractABI,
-      {
-        signed: true,
-      }
-    );
-
-    const result = await (
-      await identityManagerContract.createIdentity(
-        ethers.utils.getAddress(address),
-        username,
-        name,
-        twitter,
-        {
-          gasLimit,
-        }
-      )
-    ).wait();
-
-    // TODO: Transform result to user
-
-    return {
+    await writeDocument(CONTRACT_EVENT_COLLECTION_NAME, {
       id,
-    };
+      blockNumber: await getBlockNumber(chain.name),
+      eventName: CONTRACT_EVENTS.pendingCreateIdentity,
+      username,
+      name,
+      twitter,
+    });
+
+    addContractJob({
+      id,
+      jobName: CONTRACT_JOBS.signupUser,
+      username,
+      name,
+      twitter,
+    });
+
+    return getUserFromEvents(id);
   } else {
     throw new RequestError("User address already exists", 400);
   }
@@ -80,32 +75,24 @@ async function updateUser(chain, { address, username, name, twitter }) {
   const currentUser = await getUserFromEvents(id);
 
   if (currentUser) {
-    const identityManagerContract = getContract(
-      chain.name,
-      ethers.utils.getAddress(chain.identityAddress),
-      IdentityManagerContractABI,
-      {
-        signed: true,
-      }
-    );
-
-    const result = await (
-      await identityManagerContract.updateIdentity(
-        ethers.utils.getAddress(address),
-        username,
-        name,
-        twitter,
-        {
-          gasLimit,
-        }
-      )
-    ).wait();
-
-    // TODO: Transform result to user
-
-    return {
+    await writeDocument(CONTRACT_EVENT_COLLECTION_NAME, {
       id,
-    };
+      blockNumber: await getBlockNumber(chain.name),
+      eventName: CONTRACT_EVENTS.pendingUpdateIdentity,
+      username,
+      name,
+      twitter,
+    });
+
+    addContractJob({
+      id,
+      jobName: CONTRACT_JOBS.updateUser,
+      username,
+      name,
+      twitter,
+    });
+
+    return getUserFromEvents(id);
   } else {
     throw new RequestError("User does not exist", 400);
   }

@@ -63,14 +63,20 @@ async function indexPastEvents({ chain }) {
     }
   );
 
-  let nextBlockToRead = 0; // (await getLastBlockReadCache(chain)) + 1;
+  let nextBlockToRead = (await getLastBlockReadCache(chain)) + 1;
 
   const blockNumber = await getBlockNumber(chain.name);
 
   const diff = nextBlockToRead - blockNumber;
 
   if (diff < 0) {
-    const events = await identityManagerContract.queryFilter([], diff);
+    const eventFilter = [
+      identityManagerContract.filters.CreateIdentity(),
+      identityManagerContract.filters.UpdateIdentity(),
+      identityManagerContract.filters.DeleteIdentity(),
+    ];
+
+    const events = await identityManagerContract.queryFilter(eventFilter, diff);
 
     events.forEach((event) => {
       processEvent(chain, event);
@@ -98,7 +104,13 @@ function subscribeNewEvents({ chain }) {
 
   const boundProcessEvent = processEvent.bind(undefined, chain);
 
-  identityManagerContract.on([], boundProcessEvent);
+  const eventFilter = [
+    identityManagerContract.filters.CreateIdentity(),
+    identityManagerContract.filters.UpdateIdentity(),
+    identityManagerContract.filters.DeleteIdentity(),
+  ];
+
+  identityManagerContract.on(eventFilter, boundProcessEvent);
 
   console.info("Subscribed for new events", chain.id);
 }
@@ -109,23 +121,23 @@ function subscribeNewEvents({ chain }) {
  * @param {Event} event blockchain event
  */
 async function processEvent(chain, event) {
-  const { blockNumber, event: eventName } = event;
+  const { address, blockNumber, event: eventName } = event;
   try {
     let user = {};
 
     console.info("Procesing contract event", eventName, blockNumber);
 
     switch (eventName) {
-      case CONTRACT_EVENTS.CreateIdentity:
+      case CONTRACT_EVENTS.createIdentity:
         user = getUserFromCreateEvent(chain, event);
         break;
-      case CONTRACT_EVENTS.UpdateIdentity:
+      case CONTRACT_EVENTS.updateIdentity:
         user = getUserFromUpdateEvent(chain, event);
         break;
-      case CONTRACT_EVENTS.DeleteIdentity:
+      case CONTRACT_EVENTS.deleteIdentity:
         user = getUserFromDeleteEvent(chain, event);
         break;
-      case CONTRACT_EVENTS.OwnershipTransferred:
+      case CONTRACT_EVENTS.ownershipTransferred:
         user = getUserFromOwnershipTransferredEvent(chain, event);
         break;
       default:
@@ -134,6 +146,7 @@ async function processEvent(chain, event) {
 
     await writeDocument(CONTRACT_EVENT_COLLECTION_NAME, {
       _id: blockNumber,
+      address,
       blockNumber,
       eventName,
       ...user,

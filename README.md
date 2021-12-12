@@ -38,14 +38,15 @@ Setup [Redis Cluster](https://redis.com/) and add host, password, and port to .e
 - [x] Deploying smart contract contract to test newtork
   - [x] Kovan
   - [x] Rinkby (https://twitter.com/John_Webb_1/status/1469238463601938433)
-- [ ] Apollo GraphQL server for user endpoints
+- [x] Apollo GraphQL server for user endpoints
   - [x] Define GraphQL schema
   - [x] Hooking into ethers
   - [x] Get address from auth signature
-  - [ ] Implement signup
-  - [ ] Implement updates
-  - [ ] Implement searching user
+  - [x] Implement signup
+  - [x] Implement updates
+  - [x] Implement searching user
   - [x] Add bull for worker queue
+  - [x] Making signup and update async
 - [x] Boilerplate website to fetch auth signature
 - [x] Background worker and indexing events
 - [x] Mongo database for indexing events
@@ -83,6 +84,8 @@ Copy results into repo for preserving with [code](/contracts/artifacts)
 
 ### latestBlock: number # the most recent block that has been referenced
 
-### contract-events: { chain: { id: int, name: string, identityAddress: string } } # message queue of events to trigger index
+### contract-events: { chain: { id: string, name: string, identityAddress: string } } # message queue of events to trigger index
+
+### contract-jobs: { id: string, jobName: string, username: sring, name: string, twitter: string} # message queue of contract jobs
 
 ## Future

@@ -1,11 +1,7 @@
 const { gql } = require("apollo-server-express");
 
 const { getAuthContext } = require("./context/auth.context");
-const {
-  User,
-  userResolvers,
-  userMutations,
-} = require("./resolvers/user.resolver");
+const { User, userResolvers } = require("./resolvers/user.resolver");
 
 const BaseSchema = gql`
   type Query {

@@ -52,15 +52,13 @@ const userResolvers = {
  * @param {undefined} _parents none
  * @param {undefined} _args none
  * @param {Context} context auth context
- * @returns {User} current user
+ * @returns {Promise<User>} current user
  */
-async function meResolver(_parents, _args, context) {
+function meResolver(_parents, _args, context) {
   const { chain, user } = context;
 
   try {
-    const me = await getUser(chain, user.address);
-
-    return me;
+    return getUser(chain, user.address);
   } catch (error) {
     throw new RequestError(error.message, error.statusCode || 500);
   }
@@ -71,16 +69,14 @@ async function meResolver(_parents, _args, context) {
  * @param {undefined} _parents none
  * @param {{ address: string }} args the user's address
  * @param {Context} context auth context
- * @returns {User} user
+ * @returns {Promise<User>} user
  */
-async function userResolver(_parents, args, context) {
+function userResolver(_parents, args, context) {
   const { address } = args;
   const { chain } = context;
 
   try {
-    const user = await getUser(chain, address);
-
-    return user;
+    return getUser(chain, address);
   } catch (error) {
     throw new RequestError(error.message, error.statusCode || 500);
   }
@@ -91,15 +87,13 @@ async function userResolver(_parents, args, context) {
  * @param {undefined} _parents none
  * @param {{ input: UserInput }} args new user information
  * @param {Context} context auth context
- * @returns {User} Signed up user
+ * @returns {Promise<User>} Signed up user
  */
-async function signUpMutation(_parents, args, context) {
+function signUpMutation(_parents, args, context) {
   const { input } = args;
   const { chain, user } = context;
 
   try {
-    const id = getId(chain.id, user.address);
-
     validateUserInput(input);
 
     const userInput = {};
@@ -109,9 +103,7 @@ async function signUpMutation(_parents, args, context) {
     userInput.name = input.name;
     userInput.twitter = input.twitter;
 
-    const signUpUser = await signupUser(chain, userInput);
-
-    return signUpUser;
+    return signupUser(chain, userInput);
   } catch (error) {
     throw new RequestError(error.message, error.statusCode || 500);
   }
@@ -122,15 +114,13 @@ async function signUpMutation(_parents, args, context) {
  * @param {undefined} _parents none
  * @param {{ input: UserInput }} args updated information
  * @param {Context} context auth context
- * @returns {User} updated user
+ * @returns {Promise<User>} updated user
  */
-async function updateMeMutation(_parents, args, context) {
+function updateMeMutation(_parents, args, context) {
   const { input } = args;
   const { chain, user } = context;
 
   try {
-    const id = getId(chain.id, user.address);
-
     validateUserInput(input);
 
     const userInput = {};
@@ -140,14 +130,10 @@ async function updateMeMutation(_parents, args, context) {
     userInput.name = input.name;
     userInput.twitter = input.twitter;
 
-    const updatedUser = await updateUser(chain, userInput);
-
-    return updatedUser;
+    return updateUser(chain, userInput);
   } catch (error) {
     throw new RequestError(error.message, error.statusCode || 500);
   }
 }
 
-const userMutations = {};
-
-module.exports = { User, userMutations, userResolvers };
+module.exports = { User, userResolvers };
