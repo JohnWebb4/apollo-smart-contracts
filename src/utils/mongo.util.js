@@ -16,8 +16,8 @@ async function initDB() {
   try {
     await client.connect();
     db = client.db(dbName);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
   }
 }
 

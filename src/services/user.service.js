@@ -2,9 +2,7 @@ const ethers = require("ethers");
 
 const IdentityManagerContractABI = require("../../contracts/artifacts/IdentityManager.abi.json");
 const { RequestError } = require("../errors/request.error");
-const {
-  getUserFromEvents,
-} = require("../resources/indexContractEvent.resource");
+const { getUserFromEvents } = require("../resources/contractEvent.resource");
 const { getId } = require("../resources/user.resource");
 const { getContract } = require("../utils/ethers.util");
 const {

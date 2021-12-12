@@ -1,12 +1,16 @@
 const ethers = require("ethers");
 
+const {
+  CONTRACT_EVENTS,
+  CONTRACT_EVENT_COLLECTION_NAME,
+} = require("../constants/contractEvent.constant");
 const IdentityManagerContractABI = require("../../contracts/artifacts/IdentityManager.abi.json");
 const { getId } = require("../resources/user.resource");
 const { getContract, getBlockNumber } = require("../utils/ethers.util");
 const { writeDocument } = require("../utils/mongo.util");
 const { getKey, getCache, setCache } = require("../utils/redis.util");
 
-const collection = "ContractEvents";
+const lastBlockReadKey = "lastBlockRead";
 
 /**
  * @type {{[id: string]: boolean}} Map of currently indexed chains
@@ -30,9 +34,17 @@ async function processIndexContractEvent(job, done) {
   // Lock
   indexedChainsMutex[chain.id] = true;
 
-  await subscribeNewEvents({ chain });
+  try {
+    await subscribeNewEvents({ chain });
 
-  await indexPastEvents({ chain });
+    await indexPastEvents({ chain });
+  } catch (error) {
+    // Lock
+    console.warn("Error indexing worker. Unlocking", chain.id, error);
+    indexedChainsMutex[chain.id] = false;
+
+    throw error;
+  }
 
   done();
 }
@@ -57,7 +69,7 @@ async function indexPastEvents({ chain }) {
     identityManagerContract.filters.DeleteIdentity,
   ];
 
-  let nextBlockToRead = (await getLastBlockReadCache(chain)) + 1;
+  let nextBlockToRead = 0; // (await getLastBlockReadCache(chain)) + 1;
 
   const blockNumber = await getBlockNumber(chain.name);
 
@@ -109,26 +121,29 @@ function subscribeNewEvents({ chain }) {
  * @param {Event} event blockchain event
  */
 async function processEvent(chain, event) {
-  const { args, blockNumber, event: eventName } = event;
+  const { blockNumber, event: eventName } = event;
   let user = {};
 
   console.info("Procesing contract event", eventName, blockNumber);
 
   switch (eventName) {
-    case "CreateIdentity":
-      const [addr, username, name, twitter] = args;
-      const id = getId(chain.id, addr);
-
-      user = {
-        id,
-        addr,
-        username,
-        name,
-        twitter,
-      };
+    case CONTRACT_EVENTS.CreateIdentity:
+      user = getUserFromCreateEvent(chain, event);
+      break;
+    case CONTRACT_EVENTS.UpdateIdentity:
+      user = getUserFromUpdateEvent(chain, event);
+      break;
+    case CONTRACT_EVENTS.DeleteIdentity:
+      user = getUserFromDeleteEvent(chain, event);
+      break;
+    case CONTRACT_EVENTS.OwnershipTransferred:
+      user = getUserFromOwnershipTransferredEvent(chain, event);
+      break;
+    default:
+      break;
   }
 
-  await writeDocument(collection, {
+  await writeDocument(CONTRACT_EVENT_COLLECTION_NAME, {
     _id: blockNumber,
     blockNumber,
     eventName,
@@ -145,7 +160,7 @@ async function processEvent(chain, event) {
  * @returns {number} last block number
  */
 async function getLastBlockReadCache(chain) {
-  const key = getKey(["lastBlockRead", chain.name]);
+  const key = getKey([lastBlockReadKey, chain.name]);
   let lastBlockRead = await getCache(key);
 
   if (!lastBlockRead || isNaN(lastBlockRead)) {
@@ -161,9 +176,57 @@ async function getLastBlockReadCache(chain) {
  * @param {number} blockNumber the new block number
  */
 async function updateLastBlockReadCache(chain, blockNumber) {
+  const key = getKey([lastBlockReadKey, chain.name]);
   const lastBlockRead = await getLastBlockReadCache(chain);
 
   await setCache(key, Math.max(lastBlockRead, blockNumber));
+}
+
+function getUserFromCreateEvent(chain, event) {
+  let [addr, indexUsername, name, twitter] = event.args;
+  const id = getId(chain.id, addr);
+  const username = indexUsername.hash;
+
+  return {
+    id,
+    username,
+    name,
+    twitter,
+  };
+}
+
+function getUserFromUpdateEvent(chain, event) {
+  let [addr, indexUsername, name, twitter] = event.args;
+  const id = getId(chain.id, addr);
+  const username = indexUsername.hash;
+
+  return {
+    id,
+    username,
+    name,
+    twitter,
+  };
+}
+
+function getUserFromDeleteEvent(chain, event) {
+  let [addr, indexUsername] = event.args;
+  const id = getId(chain.id, addr);
+  const username = indexUsername.hash;
+
+  return {
+    id,
+    username,
+  };
+}
+
+function getUserFromOwnershipTransferredEvent(chain, event) {
+  const [fromAddr, toAddr] = event.args;
+  const id = getId(chain.id, fromAddr);
+
+  return {
+    id,
+    to: toAddr,
+  };
 }
 
 module.exports = { processIndexContractEvent };

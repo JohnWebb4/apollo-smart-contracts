@@ -59,6 +59,8 @@ Copy results into repo for preserving with [code](/contracts/artifacts)
 
 ## MongoDB
 
+## Data
+
 ### Contract Event
 
 ```
@@ -72,6 +74,10 @@ Copy results into repo for preserving with [code](/contracts/artifacts)
   twitter: string? # twitter handle
 }
 ```
+
+### Indexes
+
+- id asc and blockNumber asc: Filter by id and sort contract events by blockNumber
 
 ## Redis
 
