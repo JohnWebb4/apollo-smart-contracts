@@ -27,8 +27,14 @@ async function initDB() {
  * @param {{}} query object with params to query
  * @returns {Cursor} mongo cursor for iteration
  */
-function queryCollection(collectionName, query) {
-  return db.collection(collectionName).find(query);
+function queryCollection(collectionName, query, sort = undefined) {
+  let cursor = db.collection(collectionName).find(query);
+
+  if (sort) {
+    cursor = cursor.sort(sort);
+  }
+
+  return cursor;
 }
 
 /**

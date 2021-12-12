@@ -63,12 +63,6 @@ async function indexPastEvents({ chain }) {
     }
   );
 
-  const eventFilter = [
-    identityManagerContract.filters.CreateIdentity,
-    identityManagerContract.filters.UpdateIdentity,
-    identityManagerContract.filters.DeleteIdentity,
-  ];
-
   let nextBlockToRead = 0; // (await getLastBlockReadCache(chain)) + 1;
 
   const blockNumber = await getBlockNumber(chain.name);
@@ -76,7 +70,7 @@ async function indexPastEvents({ chain }) {
   const diff = nextBlockToRead - blockNumber;
 
   if (diff < 0) {
-    const events = await identityManagerContract.queryFilter(eventFilter, diff);
+    const events = await identityManagerContract.queryFilter([], diff);
 
     events.forEach((event) => {
       processEvent(chain, event);
@@ -102,15 +96,9 @@ function subscribeNewEvents({ chain }) {
     }
   );
 
-  const eventFilter = [
-    identityManagerContract.filters.CreateIdentity,
-    identityManagerContract.filters.UpdateIdentity,
-    identityManagerContract.filters.DeleteIdentity,
-  ];
-
   const boundProcessEvent = processEvent.bind(undefined, chain);
 
-  identityManagerContract.on(eventFilter, boundProcessEvent);
+  identityManagerContract.on([], boundProcessEvent);
 
   console.info("Subscribed for new events", chain.id);
 }
@@ -122,36 +110,49 @@ function subscribeNewEvents({ chain }) {
  */
 async function processEvent(chain, event) {
   const { blockNumber, event: eventName } = event;
-  let user = {};
+  try {
+    let user = {};
 
-  console.info("Procesing contract event", eventName, blockNumber);
+    console.info("Procesing contract event", eventName, blockNumber);
 
-  switch (eventName) {
-    case CONTRACT_EVENTS.CreateIdentity:
-      user = getUserFromCreateEvent(chain, event);
-      break;
-    case CONTRACT_EVENTS.UpdateIdentity:
-      user = getUserFromUpdateEvent(chain, event);
-      break;
-    case CONTRACT_EVENTS.DeleteIdentity:
-      user = getUserFromDeleteEvent(chain, event);
-      break;
-    case CONTRACT_EVENTS.OwnershipTransferred:
-      user = getUserFromOwnershipTransferredEvent(chain, event);
-      break;
-    default:
-      break;
+    switch (eventName) {
+      case CONTRACT_EVENTS.CreateIdentity:
+        user = getUserFromCreateEvent(chain, event);
+        break;
+      case CONTRACT_EVENTS.UpdateIdentity:
+        user = getUserFromUpdateEvent(chain, event);
+        break;
+      case CONTRACT_EVENTS.DeleteIdentity:
+        user = getUserFromDeleteEvent(chain, event);
+        break;
+      case CONTRACT_EVENTS.OwnershipTransferred:
+        user = getUserFromOwnershipTransferredEvent(chain, event);
+        break;
+      default:
+        break;
+    }
+
+    await writeDocument(CONTRACT_EVENT_COLLECTION_NAME, {
+      _id: blockNumber,
+      blockNumber,
+      eventName,
+      ...user,
+    });
+
+    // Update last read
+    await updateLastBlockReadCache(chain, blockNumber);
+  } catch (error) {
+    if (error.index === 0 && error.code === 11000) {
+      // Mongo duplicate _id
+      console.warn(
+        "Attempted to duplicate contract event",
+        eventName,
+        blockNumber
+      );
+    } else {
+      console.error("Error adding block", event.blockNumber, error);
+    }
   }
-
-  await writeDocument(CONTRACT_EVENT_COLLECTION_NAME, {
-    _id: blockNumber,
-    blockNumber,
-    eventName,
-    ...user,
-  });
-
-  // Update last read
-  await updateLastBlockReadCache(chain, blockNumber);
 }
 
 /**

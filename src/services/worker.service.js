@@ -1,4 +1,5 @@
 const Queue = require("bull");
+const { getChain } = require("../resources/chain.resource");
 
 const {
   processIndexContractEvent,
@@ -6,7 +7,8 @@ const {
 
 const host = process.env.REDIS_HOST;
 const password = process.env.REDIS_PASSWORD;
-const port = "19196"; // Could move to env file. Not gonna worry about now.
+const port = process.env.REDIS_PORT;
+const chainIds = [4, 42];
 
 const indexContractEventQueue = new Queue("contract-events", {
   redis: { host, password, port },
@@ -16,8 +18,12 @@ const indexContractEventQueue = new Queue("contract-events", {
  * Adds an event to index the current contract
  * @param {*} event
  */
-async function addIndexContractEvent(event) {
-  await indexContractEventQueue.add(event);
+async function initContractWorker() {
+  for (chainId of chainIds) {
+    const chain = getChain(chainId);
+
+    await indexContractEventQueue.add({ chain });
+  }
 }
 
 indexContractEventQueue.process(processIndexContractEvent);
@@ -32,4 +38,4 @@ process.on("SIGINT", async function () {
   process.exit(0);
 });
 
-module.exports = { addIndexContractEvent };
+module.exports = { initContractWorker };

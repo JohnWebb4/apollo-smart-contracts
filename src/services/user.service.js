@@ -9,8 +9,8 @@ const {
   isAlphaNumeric,
   isXCharactersOrLess,
 } = require("../utils/validator.util");
-const { addIndexContractEvent } = require("./worker.service");
 
+const gasLimit = ethers.utils.parseUnits("0.00000000003"); // Estimates
 const nameLength = 50; // Arbitrary
 const twitterHandleLength = 15; // Source: https://help.twitter.com/en/managing-your-account/twitter-username-rules#:~:text=Your%20username%20cannot%20be%20longer,for%20the%20sake%20of%20ease
 const usernameLength = 15; // Arbitrary
@@ -47,16 +47,19 @@ async function signupUser(chain, { address, username, name, twitter }) {
       }
     );
 
-    const result = await identityManagerContract.createIdentity(
-      ethers.utils.getAddress(address),
-      username,
-      name,
-      twitter
-    );
+    const result = await (
+      await identityManagerContract.createIdentity(
+        ethers.utils.getAddress(address),
+        username,
+        name,
+        twitter,
+        {
+          gasLimit,
+        }
+      )
+    ).wait();
 
     // TODO: Transform result to user
-
-    addIndexContractEvent({ chain });
 
     return {
       id,
@@ -79,23 +82,26 @@ async function updateUser(chain, { address, username, name, twitter }) {
   if (currentUser) {
     const identityManagerContract = getContract(
       chain.name,
-      address,
+      ethers.utils.getAddress(chain.identityAddress),
       IdentityManagerContractABI,
       {
         signed: true,
       }
     );
 
-    const result = await identityManagerContract.updateIdentity(
-      ethers.utils.getAddress(address),
-      username,
-      name,
-      twitter
-    );
+    const result = await (
+      await identityManagerContract.updateIdentity(
+        ethers.utils.getAddress(address),
+        username,
+        name,
+        twitter,
+        {
+          gasLimit,
+        }
+      )
+    ).wait();
 
     // TODO: Transform result to user
-
-    addIndexContractEvent({ chain });
 
     return {
       id,

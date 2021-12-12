@@ -1,9 +1,8 @@
 const { AuthenticationError } = require("apollo-server-errors");
 
-const { getChain } = require("../services/chain.service");
+const { getChain } = require("../resources/chain.resource");
 const { recoverSignatureAddress } = require("../utils/ethers.util");
 const { initClient } = require("../utils/ethers.util");
-const { initDB } = require("../utils/mongo.util");
 
 async function getAuthContext({ req, res }) {
   const chainId = req.headers["chain-id"];
@@ -30,8 +29,6 @@ async function getAuthContext({ req, res }) {
   }
 
   initClient(chain.name);
-
-  await initDB();
 
   return { chain, user: { address } };
 }
