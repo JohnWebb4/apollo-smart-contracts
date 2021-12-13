@@ -9,7 +9,7 @@ async function getAuthContext({ req, res }) {
   const authSignature = req.headers["auth-signature"];
 
   if (!chainId) {
-    throw new AuthenticationError("Missing chain ID");
+    throw new AuthenticationError("Missing Chain ID");
   }
 
   if (!authSignature) {
@@ -19,7 +19,7 @@ async function getAuthContext({ req, res }) {
   const chain = getChain(chainId);
 
   if (!chain) {
-    throw new AuthenticationError("Invalid Chain id");
+    throw new AuthenticationError("Invalid Chain ID");
   }
 
   const address = recoverSignatureAddress(authSignature, chain.url);

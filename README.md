@@ -2,23 +2,27 @@
 
 ## Goal
 
-Build an Apollo GraphQL server to allow users to sign up and update their user information.
+Build an Apollo GraphQL server to allow users to sign up and update their user information. Information should be stored on an Etherium smart contract.
+
+## Architecture
+
+![Architecture Diaghram](/resources/architecture-diaghram.png)
 
 ## Setup
 
-Install Node 12
+Install [Node 12](https://nodejs.org/) and [Yarn](https://yarnpkg.com/)
 
-Install packages
+Install NPM packages
 
 ```sh
-npm i
+yarn
 ```
 
 ## Development
 
 Install [Metamask](https://metamask.io/), if you haven't already
 
-Copy see [sample.env](/sample.env) into .env file.
+Copy [sample.env](/sample.env) into .env file
 
 Setup a wallet and account for service. Add private key to .env
 
@@ -32,12 +36,18 @@ Setup [MongoDb Cluster](https://www.mongodb.com/) and add url to .env and add x5
 
 Setup [Redis Cluster](https://redis.com/) and add host, password, and port to .env
 
+Obtain Auth Signature from local dev website.
+
+```
+yarn start:web:dev
+```
+
 ## Roadmap
 
 - [x] Setup Node server
-- [x] Deploying smart contract contract to test newtork
+- [x] Deploying smart contract contract to test network
   - [x] Kovan
-  - [x] Rinkby (https://twitter.com/John_Webb_1/status/1469238463601938433)
+  - [x] Rinkby
 - [x] Apollo GraphQL server for user endpoints
   - [x] Define GraphQL schema
   - [x] Hooking into ethers
@@ -45,10 +55,10 @@ Setup [Redis Cluster](https://redis.com/) and add host, password, and port to .e
   - [x] Implement signup
   - [x] Implement updates
   - [x] Implement searching user
-  - [x] Add bull for worker queue
   - [x] Making signup and update async
+  - [x] Add pending index events. Remove if issues
 - [x] Boilerplate website to fetch auth signature
-- [x] Background worker and indexing events
+- [x] Background workers for updating contract and indexing events using Bull
 - [x] Mongo database for indexing events
 - [x] User validation on endpoints
 
@@ -60,32 +70,49 @@ Copy results into repo for preserving with [code](/contracts/artifacts)
 
 ## MongoDB
 
-## Data
+### Data
 
-### Contract Event
+#### Contract Event
 
 ```
 {
   id: string # chainid:address
+  address: string # contract address
   blockNumber: long # number on block
   eventName: string # name of event
-  addr: string # chain user address
   username: string
-  name: string? # name of user
+  name: string?
   twitter: string? # twitter handle
 }
 ```
 
-### Indexes
+#### Indexes
 
 - id asc and blockNumber asc: Filter by id and sort contract events by blockNumber
+- id asc and eventName asc: Filter by id and event name
 
 ## Redis
 
-### latestBlock: number # the most recent block that has been referenced
+### latestBlock
 
-### contract-events: { chain: { id: string, name: string, identityAddress: string } } # message queue of events to trigger index
+```
+number # the most recent block that has been referenced
+```
 
-### contract-jobs: { id: string, jobName: string, username: sring, name: string, twitter: string} # message queue of contract jobs
+### contract-events
+
+```
+{ chain: { id: string, name: string, identityAddress: string } } # message queue of events to trigger index
+```
+
+### contract-jobs
+
+```
+{ id: string, jobName: string, username: sring, name: string, twitter: string} # message queue of contract jobs
+```
 
 ## Future
+
+- Implementing front end
+- Deleting user
+- GraphQL subscription to notify user if worker job fails
