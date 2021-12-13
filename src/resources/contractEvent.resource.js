@@ -38,6 +38,7 @@ async function getUserFromEvents(id) {
 
         user.id = contractEvent.id;
         user.chainId = chainId;
+        user.username = contractEvent.username;
         user.address = contractEvent.address;
         user.name = contractEvent.name;
         user.twitter = contractEvent.twitter;
@@ -49,9 +50,11 @@ async function getUserFromEvents(id) {
 
         user.id = contractEvent.id;
         user.chainId = chainId;
+        user.username = contractEvent.username;
         user.address = "pending";
         user.name = contractEvent.name;
         user.twitter = contractEvent.twitter;
+        break;
       case CONTRACT_EVENTS.updateIdentity:
         user.username = contractEvent.username;
         user.address = contractEvent.address;
